@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: ad_batch_data_db
+    image: postgres:16.3
+    restart: always
+    environment:
+      POSTGRES_USER: kyza2010
+      POSTGRES_PASSWORD: kyza2010
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+
+  adminer:
+    container_name: ad_adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
