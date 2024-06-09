@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 @Slf4j
 @Service
@@ -20,27 +20,25 @@ import java.sql.ResultSet;
 public class BatchDataService implements DataService {
 
     private static final Integer BATCH_SIZE = 100_000;
-    private static final String QUERY = "select * from random_data LIMIT 100000";
+    private static final String QUERY = "select * from random_data";
 
     private final DataSource dataSource;
 
     @Async
     @SneakyThrows
     public void doSomeJob() {
-        log.info("Start reading data with batch. Do not expect it will work...");
+        log.info("Start reading data with batch.");
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     QUERY, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)
+             Statement statement = connection.createStatement()
         ) {
             connection.setAutoCommit(false);
             statement.setFetchSize(BATCH_SIZE);
 
-            try (ResultSet resultSet = statement.executeQuery()) {
+            try (ResultSet resultSet = statement.executeQuery(QUERY)) {
                 while (resultSet.next()) {
                     traceRowIfNecessary(resultSet.getRow() % 100_000 == 0, resultSet);
                 }
-                resultSet.last();
                 log.info("Batch read found {} rows", resultSet.getRow());
             }
         }
