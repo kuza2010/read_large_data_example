@@ -22,6 +22,15 @@ Then we are going to run the app:
 1) `./mvnw clean install`
 2) `./mvwn spring-boot:run`
 
+The app available now: localhost:8082.
+
+## Using
+
+1) Send `GET` request by `/data/all` path - it will trigger full read (`select *`). This will cause OutOfMemory
+   exception.
+2) Then send `GET` request by `/data/all/batch` path - it will trigger same query, but process the data with 100_000
+   chunk size. No OutOfMemory expected here.
+
 ## ⚠ From author ⚠
 
 To make `ResultSet` fetch data set in portions, we need:
